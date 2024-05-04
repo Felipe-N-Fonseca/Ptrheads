@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 
 int m, n; // Supondo que m e n sejam variáveis globais.
@@ -25,14 +26,33 @@ void *Pth_mat_vect(void *rank) {
 }
 
 int main() {
-    // Inicialização e alocação de memória para A, x e y.
+    // Inicialização de m, n e thread_count.
+    m = 4; // Exemplo: número de linhas da matriz A e elementos do vetor y
+    n = 3; // Exemplo: número de colunas da matriz A e elementos do vetor x
+    thread_count = 2; // Exemplo: número de threads
 
-    // Inicialização de m, n, A, x e y.
+    // Alocação de memória para A, x e y.
+    A = (double **) malloc(m * sizeof(double *));
+    for (int i = 0; i < m; i++) {
+        A[i] = (double *) malloc(n * sizeof(double));
+    }
 
-    // Inicialização de thread_count.
+    x = (double *) malloc(n * sizeof(double));
+    y = (double *) malloc(m * sizeof(double));
+
+    // Inicialização de A e x (exemplo).
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            A[i][j] = i + j; // Exemplo: valores aleatórios para A
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        x[i] = i; // Exemplo: valores aleatórios para x
+    }
 
     pthread_t *thread_handles;
-    thread_handles = malloc(thread_count * sizeof(pthread_t));
+    thread_handles = (pthread_t *) malloc(thread_count * sizeof(pthread_t));
 
     long thread;
     for (thread = 0; thread < thread_count; thread++) {
@@ -43,8 +63,20 @@ int main() {
         pthread_join(thread_handles[thread], NULL);
     }
 
-    // Liberar memória e outros recursos alocados.
+    // Exibindo o resultado da matriz-vetor.
+    printf("Resultado do produto matriz-vetor:\n");
+    for (int i = 0; i < m; i++) {
+        printf("%f ", y[i]);
+    }
+    printf("\n");
 
+    // Liberação de memória alocada.
+    for (int i = 0; i < m; i++) {
+        free(A[i]);
+    }
+    free(A);
+    free(x);
+    free(y);
     free(thread_handles);
 
     return 0;
